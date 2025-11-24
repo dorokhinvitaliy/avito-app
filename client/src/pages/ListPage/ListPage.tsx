@@ -140,7 +140,7 @@ export const ListPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ p: 4, m: '0 auto' }}>
       <Typography variant="h4" component="h1" gutterBottom>
         Список объявлений
       </Typography>

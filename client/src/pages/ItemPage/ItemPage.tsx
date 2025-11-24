@@ -27,8 +27,18 @@ import {
   ImageList,
   ImageListItem,
   CircularProgress,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
-import { ArrowBack, ArrowForward, Check, Close, Edit } from '@mui/icons-material';
+import {
+  ArrowBack,
+  ArrowForward,
+  Check,
+  Close,
+  Edit,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+} from '@mui/icons-material';
 import type { Advertisement } from '../../types';
 import { adsApi } from '../../services/api';
 
@@ -37,6 +47,10 @@ export const ItemPage: React.FC = () => {
   const navigate = useNavigate();
   const [ad, setAd] = useState<Advertisement | null>(null);
   const [loading, setLoading] = useState(false);
+  const [neighborAds, setNeighborAds] = useState<{ prev: number | null; next: number | null }>({
+    prev: null,
+    next: null,
+  });
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [changesDialogOpen, setChangesDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
@@ -45,7 +59,9 @@ export const ItemPage: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      loadAd(parseInt(id));
+      const adId = parseInt(id);
+      loadAd(adId);
+      loadNeighbors(adId);
     }
   }, [id]);
 
@@ -58,6 +74,31 @@ export const ItemPage: React.FC = () => {
       console.error('Error loading ad:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadNeighbors = async (currentAdId: number) => {
+    try {
+      // Загружаем все объявления чтобы найти соседние
+      const response = await adsApi.getAds({
+        limit: 1000, // Большой лимит чтобы получить все IDs
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      });
+
+      const allAds = response.data.ads || [];
+      const currentIndex = allAds.findIndex(ad => ad.id === currentAdId);
+
+      if (currentIndex !== -1) {
+        setNeighborAds({
+          prev: currentIndex > 0 ? allAds[currentIndex - 1].id : null,
+          next: currentIndex < allAds.length - 1 ? allAds[currentIndex + 1].id : null,
+        });
+      } else {
+        setNeighborAds({ prev: null, next: null });
+      }
+    } catch (error) {
+      console.error('Error loading neighbors:', error);
     }
   };
 
@@ -109,6 +150,50 @@ export const ItemPage: React.FC = () => {
       console.error('Error requesting changes:', error);
     }
   };
+
+  const handleNavigateToNeighbor = (neighborId: number | null) => {
+    if (neighborId) {
+      navigate(`/item/${neighborId}`);
+    }
+  };
+
+  // Горячие клавиши
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (!ad) return;
+
+      // Alt + ← / → для навигации
+      if (event.altKey) {
+        if (event.key === 'ArrowLeft' && neighborAds.prev) {
+          handleNavigateToNeighbor(neighborAds.prev);
+        } else if (event.key === 'ArrowRight' && neighborAds.next) {
+          handleNavigateToNeighbor(neighborAds.next);
+        }
+      }
+
+      // Горячие клавиши для действий (только если нет открытых диалогов)
+      if (!rejectDialogOpen && !changesDialogOpen) {
+        switch (event.key.toLowerCase()) {
+          case 'a': // Approve
+            if (ad.status !== 'approved') {
+              handleApprove();
+            }
+            break;
+          case 'd': // Reject
+            if (ad.status !== 'rejected') {
+              setRejectDialogOpen(true);
+            }
+            break;
+          case 'r': // Return for changes
+            setChangesDialogOpen(true);
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [ad, neighborAds, rejectDialogOpen, changesDialogOpen]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -218,6 +303,9 @@ export const ItemPage: React.FC = () => {
     return (
       <Container>
         <Typography>Объявление не найдено</Typography>
+        <Button onClick={() => navigate('/list')} sx={{ mt: 2 }}>
+          Вернуться к списку
+        </Button>
       </Container>
     );
   }
@@ -231,18 +319,45 @@ export const ItemPage: React.FC = () => {
         </Button>
 
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button variant="outlined" startIcon={<ArrowBack />}>
-            Предыдущее
-          </Button>
-          <Button variant="outlined" endIcon={<ArrowForward />}>
-            Следующее
-          </Button>
+          <Tooltip title="Предыдущее объявление (Alt + ←)">
+            <span>
+              <IconButton
+                onClick={() => handleNavigateToNeighbor(neighborAds.prev)}
+                disabled={!neighborAds.prev}
+                color="primary"
+                size="large"
+              >
+                <KeyboardArrowLeft />
+              </IconButton>
+            </span>
+          </Tooltip>
+
+          <Tooltip title="Следующее объявление (Alt + →)">
+            <span>
+              <IconButton
+                onClick={() => handleNavigateToNeighbor(neighborAds.next)}
+                disabled={!neighborAds.next}
+                color="primary"
+                size="large"
+              >
+                <KeyboardArrowRight />
+              </IconButton>
+            </span>
+          </Tooltip>
         </Box>
+      </Box>
+
+      {/* Подсказка горячих клавиш */}
+      <Box sx={{ mb: 2, p: 1, bgcolor: 'info.light', borderRadius: 1 }}>
+        <Typography variant="caption" color="info.contrastText">
+          Горячие клавиши: A - одобрить, D - отклонить, R - вернуть на доработку, Alt+←/→ -
+          навигация
+        </Typography>
       </Box>
 
       <Grid container spacing={3}>
         {/* Левая колонка - основная информация */}
-        <Grid item xs={12} md={8}>
+        <Grid container xs={12} md={8}>
           {/* Заголовок и статус */}
           <Card sx={{ mb: 3 }}>
             <CardContent>
@@ -287,6 +402,7 @@ export const ItemPage: React.FC = () => {
                       src={image || '/placeholder-image.jpg'}
                       alt={`${ad.title} ${index + 1}`}
                       loading="lazy"
+                      style={{ height: 120, objectFit: 'cover' }}
                     />
                   </ImageListItem>
                 ))}
@@ -300,7 +416,9 @@ export const ItemPage: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Полное описание
               </Typography>
-              <Typography variant="body1">{ad.description}</Typography>
+              <Typography variant="body1" style={{ whiteSpace: 'pre-wrap' }}>
+                {ad.description}
+              </Typography>
             </CardContent>
           </Card>
 
@@ -422,35 +540,43 @@ export const ItemPage: React.FC = () => {
                 Действия модератора
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Button
-                  variant="contained"
-                  color="success"
-                  startIcon={<Check />}
-                  onClick={handleApprove}
-                  fullWidth
-                  disabled={ad.status === 'approved'}
-                >
-                  Одобрить
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  startIcon={<Close />}
-                  onClick={() => setRejectDialogOpen(true)}
-                  fullWidth
-                  disabled={ad.status === 'rejected'}
-                >
-                  Отклонить
-                </Button>
-                <Button
-                  variant="contained"
-                  color="warning"
-                  startIcon={<Edit />}
-                  onClick={() => setChangesDialogOpen(true)}
-                  fullWidth
-                >
-                  Вернуть на доработку
-                </Button>
+                <Tooltip title="Горячая клавиша: A">
+                  <Button
+                    variant="contained"
+                    color="success"
+                    startIcon={<Check />}
+                    onClick={handleApprove}
+                    fullWidth
+                    disabled={ad.status === 'approved'}
+                  >
+                    Одобрить
+                  </Button>
+                </Tooltip>
+
+                <Tooltip title="Горячая клавиша: D">
+                  <Button
+                    variant="contained"
+                    color="error"
+                    startIcon={<Close />}
+                    onClick={() => setRejectDialogOpen(true)}
+                    fullWidth
+                    disabled={ad.status === 'rejected'}
+                  >
+                    Отклонить
+                  </Button>
+                </Tooltip>
+
+                <Tooltip title="Горячая клавиша: R">
+                  <Button
+                    variant="contained"
+                    color="warning"
+                    startIcon={<Edit />}
+                    onClick={() => setChangesDialogOpen(true)}
+                    fullWidth
+                  >
+                    Вернуть на доработку
+                  </Button>
+                </Tooltip>
               </Box>
             </CardContent>
           </Card>
