@@ -1,5 +1,17 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, Chip, Box } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Button,
+  Chip,
+  Box,
+  Stack,
+  Divider,
+} from '@mui/material';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+
 import type { Advertisement } from '../types';
 import { useNavigate } from 'react-router-dom';
 
@@ -49,10 +61,10 @@ export const AdCard: React.FC<AdCardProps> = ({ ad }) => {
   };
 
   return (
-    <Card sx={{ display: 'flex', mb: 2, height: 140 }}>
+    <Card sx={{ display: 'flex', mb: 2, p: 0 }}>
       <CardMedia
         component="img"
-        sx={{ width: 140 }}
+        sx={{ width: 200 }}
         image={ad.images[0] || '/placeholder-image.jpg'}
         alt={ad.title}
       />
@@ -66,12 +78,12 @@ export const AdCard: React.FC<AdCardProps> = ({ ad }) => {
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Chip
               label={getStatusLabel(ad.status)}
-              color={getStatusColor(ad.status) as any}
+              color={getStatusColor(ad.status)}
               size="small"
             />
             <Chip
               label={getPriorityLabel(ad.priority)}
-              color={getPriorityColor(ad.priority) as any}
+              color={getPriorityColor(ad.priority)}
               size="small"
               variant="outlined"
             />
@@ -90,11 +102,22 @@ export const AdCard: React.FC<AdCardProps> = ({ ad }) => {
             mt: 'auto',
           }}
         >
-          <Typography variant="body2" color="text.secondary">
-            {ad.category} • {formatDate(ad.createdAt)}
-          </Typography>
-          <Button variant="outlined" size="small" onClick={() => navigate(`/item/${ad.id}`)}>
-            Открыть →
+          <Stack direction="row" divider={<Divider orientation="vertical" flexItem />} spacing={2}>
+            <Typography variant="body2" color="text.secondary">
+              {ad.category}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary">
+              {formatDate(ad.createdAt)}
+            </Typography>
+          </Stack>
+
+          <Button
+            variant="outlined"
+            onClick={() => navigate(`/item/${ad.id}`)}
+            endIcon={<ArrowForwardIcon />}
+          >
+            <strong>Открыть</strong>
           </Button>
         </Box>
       </CardContent>
