@@ -45,6 +45,8 @@ git clone https://github.com/dorokhinvitaliy/avito-app.git
 cd avito-app
 
 docker compose up --build
+# ИЛИ запуск уже собранного образа
+docker compose up
 ```
 
 Фронтенд: http://localhost:5173
