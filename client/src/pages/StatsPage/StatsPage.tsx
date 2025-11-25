@@ -21,88 +21,10 @@ import {
 } from '@mui/icons-material';
 import type { StatsSummary, ActivityData, DecisionsData } from '../../types';
 import { statsApi } from '../../services/api';
-
-// Простые компоненты графиков (заглушки)
-const ActivityChart: React.FC<{ data: ActivityData[] }> = ({ data }) => (
-  <Box sx={{ height: 300, display: 'flex', alignItems: 'flex-end', gap: 1, mt: 2 }}>
-    {data.map((item, index) => (
-      <Box
-        key={index}
-        sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.5, height: 200 }}>
-          <Box
-            sx={{
-              width: 20,
-              height: (item.approved / Math.max(...data.map(d => d.approved))) * 180,
-              bgcolor: '#4caf50',
-              borderRadius: 1,
-            }}
-          />
-          <Box
-            sx={{
-              width: 20,
-              height: (item.rejected / Math.max(...data.map(d => d.rejected))) * 180,
-              bgcolor: '#f44336',
-              borderRadius: 1,
-            }}
-          />
-          <Box
-            sx={{
-              width: 20,
-              height: (item.requestChanges / Math.max(...data.map(d => d.requestChanges))) * 180,
-              bgcolor: '#ff9800',
-              borderRadius: 1,
-            }}
-          />
-        </Box>
-        <Typography variant="caption" sx={{ mt: 1 }}>
-          {new Date(item.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
-        </Typography>
-      </Box>
-    ))}
-  </Box>
-);
-
-const DecisionsChart: React.FC<{ data: DecisionsData }> = ({ data }) => {
-  const total = data.approved + data.rejected + data.requestChanges;
-  const approvedPercent = (data.approved / total) * 100;
-  const rejectedPercent = (data.rejected / total) * 100;
-  const requestChangesPercent = (data.requestChanges / total) * 100;
-
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ width: 16, height: 16, bgcolor: '#4caf50', borderRadius: '50%' }} />
-        <Typography variant="body2">Одобрено: {approvedPercent.toFixed(1)}%</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ width: 16, height: 16, bgcolor: '#f44336', borderRadius: '50%' }} />
-        <Typography variant="body2">Отклонено: {rejectedPercent.toFixed(1)}%</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ width: 16, height: 16, bgcolor: '#ff9800', borderRadius: '50%' }} />
-        <Typography variant="body2">На доработку: {requestChangesPercent.toFixed(1)}%</Typography>
-      </Box>
-    </Box>
-  );
-};
-
-const CategoriesChart: React.FC<{ data: Record<string, number> }> = ({ data }) => (
-  <Box sx={{ mt: 2 }}>
-    {Object.entries(data).map(([category, count]) => (
-      <Box
-        key={category}
-        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}
-      >
-        <Typography variant="body2">{category}</Typography>
-        <Typography variant="body2" fontWeight="bold">
-          {count}
-        </Typography>
-      </Box>
-    ))}
-  </Box>
-);
+import { ActivityChart } from '../../components/ActivityChart';
+import { DecisionsChart } from '../../components/DecisionsChart';
+import { CategoriesChart } from '../../components/CategoriesChart';
+import { formatTime } from '../../services/formatters';
 
 export const StatsPage: React.FC = () => {
   const [period, setPeriod] = useState<'today' | 'week' | 'month'>('week');
@@ -139,23 +61,10 @@ export const StatsPage: React.FC = () => {
     }
   };
 
-  const handlePeriodChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newPeriod: 'today' | 'week' | 'month',
-  ) => {
+  const handlePeriodChange = (newPeriod: 'today' | 'week' | 'month') => {
     if (newPeriod !== null) {
       setPeriod(newPeriod);
     }
-  };
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 3600);
-    if (minutes < 60) {
-      return `${minutes} мин`;
-    }
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return mins > 0 ? `${hours}ч ${mins}мин` : `${hours}ч`;
   };
 
   if (loading) {
@@ -178,7 +87,7 @@ export const StatsPage: React.FC = () => {
         <ToggleButtonGroup
           value={period}
           exclusive
-          onChange={handlePeriodChange}
+          onChange={(_, value) => handlePeriodChange(value)}
           aria-label="период статистики"
         >
           <ToggleButton value="today" aria-label="сегодня">
