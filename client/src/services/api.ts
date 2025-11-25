@@ -9,7 +9,9 @@ import type {
   RejectRequest,
 } from '../types';
 
-const API_BASE = 'http://localhost:3001/api/v1';
+const API_BASE =
+  import.meta.env.VITE_API_BASE ??
+  (import.meta.env.DEV ? 'http://localhost:3001/api/v1' : '/api/v1');
 
 const api = axios.create({
   baseURL: API_BASE,
