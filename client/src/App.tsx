@@ -11,6 +11,12 @@ const theme = createTheme({
     primary: {
       main: '#1976d2',
     },
+    success: {
+      main: '#4C956C',
+    },
+    error: {
+      main: '#c1121f',
+    },
     secondary: {
       main: '#dc004e',
     },
@@ -25,8 +31,66 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          borderRadius: 8,
+          padding: 16,
+          borderRadius: 16,
+          boxShadow: '0 0 0 2px #302c2b0a',
+        },
+      },
+    },
+    MuiCardContent: {
+      styleOverrides: {
+        root: {
+          padding: 16,
+          '&:last-child': {
+            paddingBottom: 16,
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 12,
+          },
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+      },
+    },
+
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+      },
+    },
+
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+      },
+    },
+
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
         },
       },
     },
