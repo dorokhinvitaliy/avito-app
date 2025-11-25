@@ -105,3 +105,15 @@ export interface RejectRequest {
     | 'Другое';
   comment?: string;
 }
+
+export interface getAdsParams {
+  page?: number;
+  limit?: number;
+  status?: string[];
+  categoryId?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  search?: string;
+  sortBy?: 'createdAt' | 'price' | 'priority';
+  sortOrder?: 'asc' | 'desc';
+}
