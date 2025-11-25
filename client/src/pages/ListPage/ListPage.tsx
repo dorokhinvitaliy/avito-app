@@ -79,10 +79,10 @@ export const ListPage: React.FC = () => {
         params.search = filters.search;
       }
 
-      console.log('Loading ads with params:', params); // Для отладки
+      console.log('Loading ads with params:', params); // отладка
 
       const response = await adsApi.getAds(params);
-      console.log('API response:', response.data); // Для отладки
+      console.log('API response:', response.data); // отладка
 
       setAds(response.data.ads || []);
 
@@ -112,7 +112,7 @@ export const ListPage: React.FC = () => {
 
   const loadCategories = async () => {
     try {
-      // Загружаем все объявления чтобы извлечь категории
+      // Загружаем все объявления
       const response = await adsApi.getAds({ limit: 100 });
       const allAds = response.data.ads || [];
       const uniqueCategories = Array.from(

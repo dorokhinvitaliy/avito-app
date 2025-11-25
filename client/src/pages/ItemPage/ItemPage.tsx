@@ -344,14 +344,13 @@ export const ItemPage: React.FC = () => {
       </Box>
 
       {/* Подсказка горячих клавиш */}
-      <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'info.light', borderRadius: 4 }}>
+      {/* <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'info.light', borderRadius: 4 }}>
         <Typography variant="caption" color="info.light">
           Горячие клавиши: A - одобрить, D - отклонить, R - вернуть на доработку, Alt+←/→ -
           навигация
         </Typography>
-      </Box>
+      </Box> */}
 
-      {/* ИСПРАВЛЕННЫЙ Grid - новый синтаксис v5 */}
       <Grid container spacing={2}>
         {/* Левая колонка - основная информация */}
         <Grid size={{ xs: 12, md: 8 }}>
@@ -423,15 +422,6 @@ export const ItemPage: React.FC = () => {
         </Grid>
 
         {/* Правая колонка - информация о продавце и модерация */}
-        {/*   <Grid size={{ xs: 12, md: 4 }}>
-          <Card sx={{ mb: 2 }}>
-            <CardContent>
-              <Typography variant="h4" color="primary" gutterBottom>
-                {ad.price.toLocaleString('ru-RU')} ₽
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid> */}
         <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ mb: 2, background: 'none', boxShadow: 'none' }}>
             <CardContent sx={{ p: 0, pb: '0px!important' }}>
