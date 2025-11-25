@@ -90,7 +90,7 @@ const DecisionsChart: React.FC<{ data: DecisionsData }> = ({ data }) => {
 
 const CategoriesChart: React.FC<{ data: Record<string, number> }> = ({ data }) => (
   <Box sx={{ mt: 2 }}>
-    {Object.entries(data).map(([category, count], index) => (
+    {Object.entries(data).map(([category, count]) => (
       <Box
         key={category}
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}
@@ -148,7 +148,8 @@ export const StatsPage: React.FC = () => {
     }
   };
 
-  const formatTime = (minutes: number) => {
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 3600);
     if (minutes < 60) {
       return `${minutes} мин`;
     }
@@ -195,7 +196,7 @@ export const StatsPage: React.FC = () => {
       {/* Общая статистика */}
       {summary && (
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -214,7 +215,7 @@ export const StatsPage: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -228,7 +229,7 @@ export const StatsPage: React.FC = () => {
                   component="div"
                   sx={{ fontWeight: 'bold', color: 'success.main' }}
                 >
-                  {summary.approvedPercentage}%
+                  {summary.approvedPercentage.toFixed(2)}%
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   процент одобрения
@@ -237,7 +238,7 @@ export const StatsPage: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -251,7 +252,7 @@ export const StatsPage: React.FC = () => {
                   component="div"
                   sx={{ fontWeight: 'bold', color: 'error.main' }}
                 >
-                  {summary.rejectedPercentage}%
+                  {summary.rejectedPercentage.toFixed(2)}%
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   процент отклонения
@@ -260,7 +261,7 @@ export const StatsPage: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -284,7 +285,7 @@ export const StatsPage: React.FC = () => {
       {/* Графики */}
       <Grid container spacing={3}>
         {/* Активность */}
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -305,7 +306,7 @@ export const StatsPage: React.FC = () => {
         </Grid>
 
         {/* Решения */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -326,7 +327,7 @@ export const StatsPage: React.FC = () => {
         </Grid>
 
         {/* Категории */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
