@@ -194,8 +194,8 @@ export const StatsPage: React.FC = () => {
       {/* Графики */}
       <Grid container spacing={3}>
         {/* Активность */}
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Card>
+        <Grid size={{ xs: 12, md: 7 }}>
+          <Card sx={{ width: '100%' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <BarChart sx={{ mr: 1, color: 'primary.main' }} />
@@ -215,8 +215,8 @@ export const StatsPage: React.FC = () => {
         </Grid>
 
         {/* Решения */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card>
+        <Grid size={{ xs: 12, md: 5 }}>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <PieChart sx={{ mr: 1, color: 'primary.main' }} />

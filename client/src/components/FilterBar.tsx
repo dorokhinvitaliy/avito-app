@@ -17,7 +17,7 @@ import {
   type SelectChangeEvent,
 } from '@mui/material';
 import type { FilterState } from '../types';
-import { FilterAlt } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 interface FilterBarProps {
   filters: FilterState;
@@ -26,6 +26,7 @@ interface FilterBarProps {
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, categories }) => {
+  const navigate = useNavigate();
   const statusOptions = [
     { value: 'pending', label: 'На модерации' },
     { value: 'approved', label: 'Одобрено' },
@@ -63,14 +64,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
         <Stack
           direction="row"
           alignItems="center"
-          justifyContent="center"
+          justifyContent="space-between"
           spacing={1}
           sx={{ mb: 2 }}
         >
-          <FilterAlt sx={{ color: '#000000ff' }} />
           <Typography variant="h5" gutterBottom>
             <b> Фильтры</b>
           </Typography>
+          <Button onClick={() => navigate('/stats')}>Статистика</Button>
         </Stack>
         <Grid container spacing={2}>
           <Grid size={{ md: 12, xs: 4 }}>

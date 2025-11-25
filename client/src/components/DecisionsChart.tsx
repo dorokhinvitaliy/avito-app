@@ -1,26 +1,29 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import type { DecisionsData } from '../types';
+import { PieChart } from '@mui/x-charts/PieChart';
 
 export const DecisionsChart: React.FC<{ data: DecisionsData }> = ({ data }) => {
-  const total = data.approved + data.rejected + data.requestChanges;
-  const approvedPercent = (data.approved / total) * 100;
-  const rejectedPercent = (data.rejected / total) * 100;
-  const requestChangesPercent = (data.requestChanges / total) * 100;
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ width: 16, height: 16, bgcolor: '#4caf50', borderRadius: '50%' }} />
-        <Typography variant="body2">Одобрено: {approvedPercent.toFixed(1)}%</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ width: 16, height: 16, bgcolor: '#f44336', borderRadius: '50%' }} />
-        <Typography variant="body2">Отклонено: {rejectedPercent.toFixed(1)}%</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ width: 16, height: 16, bgcolor: '#ff9800', borderRadius: '50%' }} />
-        <Typography variant="body2">На доработку: {requestChangesPercent.toFixed(1)}%</Typography>
-      </Box>
+      <PieChart
+        slotProps={{
+          legend: {
+            direction: 'horizontal',
+            position: { vertical: 'bottom', horizontal: 'center' },
+          },
+        }}
+        width={200}
+        height={300}
+        series={[
+          {
+            data: [
+              { id: 0, value: data.approved, label: 'Одобрено', color: '#4caf50' },
+              { id: 1, value: data.rejected, label: 'Отклонено', color: '#f44336' },
+              { id: 2, value: data.requestChanges, label: 'На доработку', color: '#ff9800' },
+            ],
+          },
+        ]}
+      />
     </Box>
   );
 };
