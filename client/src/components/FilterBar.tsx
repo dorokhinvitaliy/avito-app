@@ -14,6 +14,7 @@ import {
   Grid,
   Typography,
   Stack,
+  type SelectChangeEvent,
 } from '@mui/material';
 import type { FilterState } from '../types';
 import { FilterAlt } from '@mui/icons-material';
@@ -32,14 +33,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
     { value: 'draft', label: 'Черновик' },
   ];
 
-  const handleStatusChange = (event: any) => {
+  const handleStatusChange = (event: SelectChangeEvent<string[]>) => {
     onFiltersChange({
       ...filters,
-      status: event.target.value,
+      status: event.target.value as string[],
     });
   };
 
-  const handleFilterChange = (key: keyof FilterState, value: any) => {
+  const handleFilterChange = (key: keyof FilterState, value: unknown) => {
     onFiltersChange({
       ...filters,
       [key]: value,
@@ -57,7 +58,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
   };
 
   return (
-    <Card>
+    <Card sx={{ position: 'sticky', top: '1rem' }}>
       <CardContent>
         <Stack
           direction="row"

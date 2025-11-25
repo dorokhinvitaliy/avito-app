@@ -14,7 +14,6 @@ import {
   TableCell,
   TableContainer,
   TableRow,
-  Paper,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -397,10 +396,10 @@ export const ItemPage: React.FC = () => {
           {Object.keys(ad.characteristics).length > 0 && (
             <Card sx={{ mb: 2 }}>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
                   Характеристики
                 </Typography>
-                <TableContainer component={Paper} variant="outlined">
+                <TableContainer>
                   <Table>
                     <TableBody>
                       {Object.entries(ad.characteristics).map(([key, value]) => (
@@ -450,20 +449,16 @@ export const ItemPage: React.FC = () => {
           {/* Информация о продавце */}
           <Card sx={{ mb: 2 }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Информация о продавце
-              </Typography>
-              <Stack direction="row" spacing={2} justifyContent="space-between">
-                <Typography color="textSecondary">Имя:</Typography>
-                <Typography variant="body1" gutterBottom>
-                  {ad.seller.name}
-                </Typography>
-              </Stack>
-
-              <Stack direction="row" spacing={2} justifyContent="space-between">
-                <Typography color="textSecondary">Рейтинг:</Typography>
-                <Stack direction="row" spacing={0.5}>
-                  <Typography sx={{ color: '#ffb121', fontWeight: 500 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ mb: 2 }}
+              >
+                <Typography variant="h6">{ad.seller.name} </Typography>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Typography variant="h6" sx={{ color: '#ffb121', fontWeight: 500 }}>
                     {ad.seller.rating}{' '}
                   </Typography>
                   <StarIcon sx={{ color: '#ffb121' }} />
@@ -497,47 +492,49 @@ export const ItemPage: React.FC = () => {
                   История модерации отсутствует
                 </Typography>
               ) : (
-                ad.moderationHistory.map(action => (
-                  <Box key={action.id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        mb: 1,
-                      }}
-                    >
-                      <Typography variant="subtitle2" color="primary">
-                        {action.moderatorName}
+                <Stack divider={<Divider sx={{ my: 2 }} />}>
+                  {ad.moderationHistory.map(action => (
+                    <Box key={action.id}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          mb: 1,
+                        }}
+                      >
+                        <Typography variant="subtitle2" color="primary">
+                          {action.moderatorName}
+                        </Typography>
+                        <Chip
+                          variant="outlined"
+                          label={getActionLabel(action.action)}
+                          color={getStatusColor(
+                            action.action === 'approved'
+                              ? 'approved'
+                              : action.action === 'rejected'
+                              ? 'rejected'
+                              : 'pending',
+                          )}
+                          size="small"
+                        />
+                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        {formatDate(action.timestamp)}
                       </Typography>
-                      <Chip
-                        variant="outlined"
-                        label={getActionLabel(action.action)}
-                        color={getStatusColor(
-                          action.action === 'approved'
-                            ? 'approved'
-                            : action.action === 'rejected'
-                            ? 'rejected'
-                            : 'pending',
-                        )}
-                        size="small"
-                      />
+                      {action.reason && (
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                          Причина: {action.reason}
+                        </Typography>
+                      )}
+                      {action.comment && (
+                        <Typography variant="body2" sx={{ mt: 0.5 }}>
+                          {action.comment}
+                        </Typography>
+                      )}
                     </Box>
-                    <Typography variant="body2" color="text.secondary">
-                      {formatDate(action.timestamp)}
-                    </Typography>
-                    {action.reason && (
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                        Причина: {action.reason}
-                      </Typography>
-                    )}
-                    {action.comment && (
-                      <Typography variant="body2" sx={{ mt: 0.5 }}>
-                        {action.comment}
-                      </Typography>
-                    )}
-                  </Box>
-                ))
+                  ))}
+                </Stack>
               )}
             </CardContent>
           </Card>
@@ -545,7 +542,7 @@ export const ItemPage: React.FC = () => {
           {/* Панель действий модератора */}
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
                 Действия модератора
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>

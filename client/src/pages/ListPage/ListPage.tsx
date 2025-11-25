@@ -10,8 +10,9 @@ import {
   CircularProgress,
   Grid,
   Stack,
+  type SelectChangeEvent,
 } from '@mui/material';
-import type { Advertisement, FilterState, PaginationResponse } from '../../types';
+import type { Advertisement, FilterState, getAdsParams, PaginationResponse } from '../../types';
 import { adsApi } from '../../services/api';
 import { AdCard } from '../../components/AdCard';
 import { FilterBar } from '../../components/FilterBar';
@@ -54,7 +55,7 @@ export const ListPage: React.FC = () => {
     setLoading(true);
     try {
       // Подготавливаем параметры для API
-      const params: any = {
+      const params: getAdsParams = {
         page: pagination.currentPage,
         limit: pagination.itemsPerPage,
         sortBy,
@@ -129,7 +130,7 @@ export const ListPage: React.FC = () => {
     setPagination(prev => ({ ...prev, currentPage: page }));
   };
 
-  const handleSortChange = (event: any) => {
+  const handleSortChange = (event: SelectChangeEvent) => {
     const [field, order] = event.target.value.split('-');
     setSortBy(field as 'createdAt' | 'price' | 'priority');
     setSortOrder(order as 'asc' | 'desc');
@@ -149,6 +150,9 @@ export const ListPage: React.FC = () => {
             <Typography variant="h4" component="h1" gutterBottom>
               Список объявлений
             </Typography>
+
+            {/* Сортировка */}
+
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', my: 2 }}>
               <FormControl sx={{ minWidth: 200 }}>
                 <InputLabel>Сортировка</InputLabel>
@@ -166,6 +170,9 @@ export const ListPage: React.FC = () => {
               </FormControl>
             </Box>
           </Stack>
+
+          {/* Список объявлений */}
+
           <Box>
             {loading ? (
               <Box display="flex" justifyContent="center" py={4}>
@@ -179,7 +186,14 @@ export const ListPage: React.FC = () => {
               ads.map(ad => <AdCard key={ad.id} ad={ad} />)
             )}
           </Box>
+
+          {/* Пагинация */}
+
+          <Pagination pagination={pagination} onPageChange={handlePageChange} />
         </Grid>
+
+        {/* Фильтры */}
+
         <Grid size={{ md: 4 }}>
           <FilterBar
             filters={filters}
@@ -188,15 +202,6 @@ export const ListPage: React.FC = () => {
           />
         </Grid>
       </Grid>
-
-      {/* Фильтры */}
-
-      {/* Сортировка */}
-
-      {/* Список объявлений */}
-
-      {/* Пагинация */}
-      <Pagination pagination={pagination} onPageChange={handlePageChange} />
     </Container>
   );
 };
