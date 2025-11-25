@@ -1,9 +1,22 @@
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',')
+      .map(origin => origin.trim())
+      .filter(Boolean)
+  : null;
 
+app.use(
+  cors({
+    origin: allowedOrigins ?? '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }),
+);
 app.use(express.json());
 app.use(express.static('public'));
 
@@ -12,7 +25,7 @@ app.use('/api/v1', require('./src/routes/v1'));
 app.get('/', (req, res) => {
   res.json({
     message: 'API сервер для модерации объявлений',
-    version: '1.0.0'
+    version: '1.0.0',
   });
 });
 
@@ -20,18 +33,18 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
     error: 'Что-то пошло не так!',
-    message: err.message
+    message: err.message,
   });
 });
 
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Endpoint не найден',
-    path: req.originalUrl
+    path: req.originalUrl,
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
 
