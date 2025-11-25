@@ -8,6 +8,8 @@ import {
   FormControl,
   InputLabel,
   CircularProgress,
+  Grid,
+  Stack,
 } from '@mui/material';
 import type { Advertisement, FilterState, PaginationResponse } from '../../types';
 import { adsApi } from '../../services/api';
@@ -140,42 +142,58 @@ export const ListPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ p: 4, m: '0 auto' }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Список объявлений
-      </Typography>
+    <Container maxWidth="xl" sx={{ p: 4, m: '0 auto' }}>
+      <Grid container spacing={2}>
+        <Grid size={{ md: 8 }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="h4" component="h1" gutterBottom>
+              Список объявлений
+            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', my: 2 }}>
+              <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel>Сортировка</InputLabel>
+                <Select
+                  value={`${sortBy}-${sortOrder}`}
+                  onChange={handleSortChange}
+                  label="Сортировка"
+                >
+                  <MenuItem value="createdAt-desc">Новые сначала</MenuItem>
+                  <MenuItem value="createdAt-asc">Старые сначала</MenuItem>
+                  <MenuItem value="price-desc">Цена по убыванию</MenuItem>
+                  <MenuItem value="price-asc">Цена по возрастанию</MenuItem>
+                  <MenuItem value="priority-desc">По приоритету</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          </Stack>
+          <Box>
+            {loading ? (
+              <Box display="flex" justifyContent="center" py={4}>
+                <CircularProgress />
+              </Box>
+            ) : ads.length === 0 ? (
+              <Typography textAlign="center" py={4} color="text.secondary">
+                Объявления не найдены
+              </Typography>
+            ) : (
+              ads.map(ad => <AdCard key={ad.id} ad={ad} />)
+            )}
+          </Box>
+        </Grid>
+        <Grid size={{ md: 4 }}>
+          <FilterBar
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            categories={categories}
+          />
+        </Grid>
+      </Grid>
 
       {/* Фильтры */}
-      <FilterBar filters={filters} onFiltersChange={handleFiltersChange} categories={categories} />
 
       {/* Сортировка */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <FormControl sx={{ minWidth: 200 }} size="small">
-          <InputLabel>Сортировка</InputLabel>
-          <Select value={`${sortBy}-${sortOrder}`} onChange={handleSortChange} label="Сортировка">
-            <MenuItem value="createdAt-desc">Новые сначала</MenuItem>
-            <MenuItem value="createdAt-asc">Старые сначала</MenuItem>
-            <MenuItem value="price-desc">Цена по убыванию</MenuItem>
-            <MenuItem value="price-asc">Цена по возрастанию</MenuItem>
-            <MenuItem value="priority-desc">По приоритету</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
 
       {/* Список объявлений */}
-      <Box>
-        {loading ? (
-          <Box display="flex" justifyContent="center" py={4}>
-            <CircularProgress />
-          </Box>
-        ) : ads.length === 0 ? (
-          <Typography textAlign="center" py={4} color="text.secondary">
-            Объявления не найдены
-          </Typography>
-        ) : (
-          ads.map(ad => <AdCard key={ad.id} ad={ad} />)
-        )}
-      </Box>
 
       {/* Пагинация */}
       <Pagination pagination={pagination} onPageChange={handlePageChange} />

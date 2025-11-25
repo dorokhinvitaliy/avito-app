@@ -9,8 +9,14 @@ import {
   Chip,
   OutlinedInput,
   Button,
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  Stack,
 } from '@mui/material';
 import type { FilterState } from '../types';
+import { FilterAlt } from '@mui/icons-material';
 
 interface FilterBarProps {
   filters: FilterState;
@@ -51,91 +57,111 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
   };
 
   return (
-    <Box sx={{ p: 2, bgcolor: 'background.paper', mb: 2, borderRadius: 1 }}>
-      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-        {/* Поиск */}
-        <TextField
-          label="Поиск по названию или описанию"
-          value={filters.search}
-          onChange={e => handleFilterChange('search', e.target.value)}
-          size="small"
-          sx={{ minWidth: 200 }}
-        />
+    <Card>
+      <CardContent>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+          spacing={1}
+          sx={{ mb: 2 }}
+        >
+          <FilterAlt sx={{ color: '#000000ff' }} />
+          <Typography variant="h5" gutterBottom>
+            <b> Фильтры</b>
+          </Typography>
+        </Stack>
+        <Grid container spacing={2}>
+          <Grid size={{ md: 12, xs: 4 }}>
+            <TextField
+              label="Поиск по названию или описанию"
+              value={filters.search}
+              onChange={e => handleFilterChange('search', e.target.value)}
+              sx={{ minWidth: 200, width: '100%' }}
+            />
+          </Grid>
 
-        {/* Статус */}
-        <FormControl sx={{ minWidth: 200 }} size="small">
-          <InputLabel>Статус</InputLabel>
-          <Select
-            multiple
-            value={filters.status}
-            onChange={handleStatusChange}
-            input={<OutlinedInput label="Статус" />}
-            renderValue={selected => (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selected.map(value => (
-                  <Chip
-                    key={value}
-                    label={statusOptions.find(opt => opt.value === value)?.label}
-                    size="small"
-                  />
+          {/* Статус */}
+          <Grid size={{ md: 12, xs: 4 }}>
+            <FormControl sx={{ minWidth: 200, width: '100%' }}>
+              <InputLabel>Статус</InputLabel>
+              <Select
+                multiple
+                value={filters.status}
+                onChange={handleStatusChange}
+                input={<OutlinedInput label="Статус" />}
+                renderValue={selected => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map(value => (
+                      <Chip
+                        key={value}
+                        label={statusOptions.find(opt => opt.value === value)?.label}
+                        size="small"
+                      />
+                    ))}
+                  </Box>
+                )}
+              >
+                {statusOptions.map(option => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
                 ))}
-              </Box>
-            )}
-          >
-            {statusOptions.map(option => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+              </Select>
+            </FormControl>
+          </Grid>
 
-        {/* Категория */}
-        <FormControl sx={{ minWidth: 200 }} size="small">
-          <InputLabel>Категория</InputLabel>
-          <Select
-            value={filters.categoryId}
-            onChange={e => handleFilterChange('categoryId', e.target.value)}
-            label="Категория"
-          >
-            <MenuItem value="">Все категории</MenuItem>
-            {categories.map(category => (
-              <MenuItem key={category.id} value={category.id}>
-                {category.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+          {/* Категория */}
+          <Grid size={{ md: 12, xs: 4 }}>
+            <FormControl sx={{ minWidth: 200, width: '100%' }}>
+              <InputLabel>Категория</InputLabel>
+              <Select
+                value={filters.categoryId}
+                onChange={e => handleFilterChange('categoryId', e.target.value)}
+                label="Категория"
+              >
+                <MenuItem value="">Все категории</MenuItem>
+                {categories.map(category => (
+                  <MenuItem key={category.id} value={category.id}>
+                    {category.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
 
-        {/* Цена от */}
-        <TextField
-          label="Цена от"
-          type="number"
-          value={filters.minPrice}
-          onChange={e =>
-            handleFilterChange('minPrice', e.target.value ? Number(e.target.value) : '')
-          }
-          size="small"
-          sx={{ minWidth: 120 }}
-        />
+          {/* Цена от */}
+          <Grid size={{ md: 12, xs: 4 }}>
+            <TextField
+              label="Цена от"
+              type="number"
+              value={filters.minPrice}
+              onChange={e =>
+                handleFilterChange('minPrice', e.target.value ? Number(e.target.value) : '')
+              }
+              sx={{ minWidth: 120, width: '100%' }}
+            />
+          </Grid>
 
-        {/* Цена до */}
-        <TextField
-          label="Цена до"
-          type="number"
-          value={filters.maxPrice}
-          onChange={e =>
-            handleFilterChange('maxPrice', e.target.value ? Number(e.target.value) : '')
-          }
-          size="small"
-          sx={{ minWidth: 120 }}
-        />
-
-        {/* Сброс фильтров */}
-        <Button onClick={clearFilters} variant="outlined">
-          Сбросить
-        </Button>
-      </Box>
-    </Box>
+          {/* Цена до */}
+          <Grid size={{ md: 12, xs: 4 }}>
+            <TextField
+              label="Цена до"
+              type="number"
+              value={filters.maxPrice}
+              onChange={e =>
+                handleFilterChange('maxPrice', e.target.value ? Number(e.target.value) : '')
+              }
+              sx={{ minWidth: 120, width: '100%' }}
+            />
+          </Grid>
+          <Grid size={{ md: 12, xs: 4 }}>
+            <Button onClick={clearFilters} variant="outlined" size="large" sx={{ width: '100%' }}>
+              Сбросить
+            </Button>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
   );
 };
