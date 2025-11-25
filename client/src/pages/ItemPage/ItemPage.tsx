@@ -24,23 +24,26 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  ImageList,
-  ImageListItem,
   CircularProgress,
   IconButton,
   Tooltip,
+  Stack,
+  Divider,
 } from '@mui/material';
+
 import {
   ArrowBack,
-  ArrowForward,
   Check,
   Close,
   Edit,
   KeyboardArrowLeft,
   KeyboardArrowRight,
+  CurrencyRuble,
 } from '@mui/icons-material';
-import type { Advertisement } from '../../types';
+import StarIcon from '@mui/icons-material/Star';
+import type { Advertisement, RejectRequest } from '../../types';
 import { adsApi } from '../../services/api';
+import { ImageGallery } from '../../components/ImageGallery';
 
 export const ItemPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -79,9 +82,8 @@ export const ItemPage: React.FC = () => {
 
   const loadNeighbors = async (currentAdId: number) => {
     try {
-      // Загружаем все объявления чтобы найти соседние
       const response = await adsApi.getAds({
-        limit: 1000, // Большой лимит чтобы получить все IDs
+        limit: 1000,
         sortBy: 'createdAt',
         sortOrder: 'desc',
       });
@@ -107,7 +109,7 @@ export const ItemPage: React.FC = () => {
 
     try {
       await adsApi.approveAd(ad.id);
-      loadAd(ad.id); // Перезагружаем для обновления данных
+      loadAd(ad.id);
     } catch (error) {
       console.error('Error approving ad:', error);
     }
@@ -116,13 +118,12 @@ export const ItemPage: React.FC = () => {
   const handleReject = async () => {
     if (!ad) return;
 
-    const reason = rejectReason === 'Другое' ? customReason : rejectReason;
-
     try {
       await adsApi.rejectAd(ad.id, {
-        reason: rejectReason as any,
-        comment: reason === 'Другое' ? customReason : undefined,
+        reason: rejectReason as RejectRequest['reason'],
+        comment: rejectReason === 'Другое' ? customReason : undefined,
       });
+
       setRejectDialogOpen(false);
       setRejectReason('');
       setCustomReason('');
@@ -135,12 +136,10 @@ export const ItemPage: React.FC = () => {
   const handleRequestChanges = async () => {
     if (!ad) return;
 
-    const reason = changesReason === 'Другое' ? customReason : changesReason;
-
     try {
       await adsApi.requestChanges(ad.id, {
-        reason: changesReason as any,
-        comment: reason === 'Другое' ? customReason : undefined,
+        reason: changesReason as RejectRequest['reason'],
+        comment: changesReason === 'Другое' ? customReason : undefined,
       });
       setChangesDialogOpen(false);
       setChangesReason('');
@@ -162,7 +161,6 @@ export const ItemPage: React.FC = () => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (!ad) return;
 
-      // Alt + ← / → для навигации
       if (event.altKey) {
         if (event.key === 'ArrowLeft' && neighborAds.prev) {
           handleNavigateToNeighbor(neighborAds.prev);
@@ -171,20 +169,19 @@ export const ItemPage: React.FC = () => {
         }
       }
 
-      // Горячие клавиши для действий (только если нет открытых диалогов)
       if (!rejectDialogOpen && !changesDialogOpen) {
         switch (event.key.toLowerCase()) {
-          case 'a': // Approve
+          case 'a':
             if (ad.status !== 'approved') {
               handleApprove();
             }
             break;
-          case 'd': // Reject
+          case 'd':
             if (ad.status !== 'rejected') {
               setRejectDialogOpen(true);
             }
             break;
-          case 'r': // Return for changes
+          case 'r':
             setChangesDialogOpen(true);
             break;
         }
@@ -348,70 +345,44 @@ export const ItemPage: React.FC = () => {
       </Box>
 
       {/* Подсказка горячих клавиш */}
-      <Box sx={{ mb: 2, p: 1, bgcolor: 'info.light', borderRadius: 1 }}>
-        <Typography variant="caption" color="info.contrastText">
+      <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'info.light', borderRadius: 4 }}>
+        <Typography variant="caption" color="info.light">
           Горячие клавиши: A - одобрить, D - отклонить, R - вернуть на доработку, Alt+←/→ -
           навигация
         </Typography>
       </Box>
 
-      <Grid container spacing={3}>
+      {/* ИСПРАВЛЕННЫЙ Grid - новый синтаксис v5 */}
+      <Grid container spacing={2}>
         {/* Левая колонка - основная информация */}
-        <Grid container xs={12} md={8}>
-          {/* Заголовок и статус */}
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  mb: 2,
-                }}
-              >
-                <Typography variant="h4" component="h1" gutterBottom>
-                  {ad.title}
-                </Typography>
-                <Chip
-                  label={getStatusLabel(ad.status)}
-                  color={getStatusColor(ad.status) as any}
-                  size="large"
-                />
-              </Box>
-
-              <Typography variant="h3" color="primary" sx={{ fontWeight: 'bold', mb: 2 }}>
-                {ad.price.toLocaleString('ru-RU')} ₽
-              </Typography>
-
-              <Typography variant="body1" color="text.secondary" gutterBottom>
-                Категория: {ad.category} • Дата: {formatDate(ad.createdAt)}
-              </Typography>
-            </CardContent>
-          </Card>
-
+        <Grid size={{ xs: 12, md: 8 }}>
           {/* Галерея изображений */}
-          <Card sx={{ mb: 3 }}>
+
+          <ImageGallery images={ad.images} title={ad.title}></ImageGallery>
+          {/* Заголовок и статус */}
+          <Card sx={{ mb: 2 }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Изображения
-              </Typography>
-              <ImageList cols={3} gap={8}>
-                {ad.images.map((image, index) => (
-                  <ImageListItem key={index}>
-                    <img
-                      src={image || '/placeholder-image.jpg'}
-                      alt={`${ad.title} ${index + 1}`}
-                      loading="lazy"
-                      style={{ height: 120, objectFit: 'cover' }}
-                    />
-                  </ImageListItem>
-                ))}
-              </ImageList>
+              <Stack direction="row" spacing={2} justifyContent="space-between" alignItems="center">
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  divider={<Divider orientation="vertical" flexItem />}
+                  sx={{ height: 'fit-content' }}
+                >
+                  <Typography variant="body1" color="text.secondary" gutterBottom>
+                    {ad.category}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" gutterBottom>
+                    Создано {formatDate(ad.createdAt)}
+                  </Typography>
+                </Stack>
+                <Chip label={getStatusLabel(ad.status)} color={getStatusColor(ad.status)} />
+              </Stack>
             </CardContent>
           </Card>
 
           {/* Полное описание */}
-          <Card sx={{ mb: 3 }}>
+          <Card sx={{ mb: 2 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Полное описание
@@ -424,7 +395,7 @@ export const ItemPage: React.FC = () => {
 
           {/* Характеристики */}
           {Object.keys(ad.characteristics).length > 0 && (
-            <Card sx={{ mb: 3 }}>
+            <Card sx={{ mb: 2 }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   Характеристики
@@ -453,31 +424,70 @@ export const ItemPage: React.FC = () => {
         </Grid>
 
         {/* Правая колонка - информация о продавце и модерация */}
-        <Grid item xs={12} md={4}>
+        {/*   <Grid size={{ xs: 12, md: 4 }}>
+          <Card sx={{ mb: 2 }}>
+            <CardContent>
+              <Typography variant="h4" color="primary" gutterBottom>
+                {ad.price.toLocaleString('ru-RU')} ₽
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid> */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card sx={{ mb: 2, background: 'none', boxShadow: 'none' }}>
+            <CardContent sx={{ p: 0, pb: '0px!important' }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <CurrencyRuble sx={{ fontSize: '2rem', color: '#1976d2' }} />
+                <Typography variant="h4" color="primary">
+                  {ad.price.toLocaleString('ru-RU', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </Typography>
+              </Stack>
+            </CardContent>
+          </Card>
           {/* Информация о продавце */}
-          <Card sx={{ mb: 3 }}>
+          <Card sx={{ mb: 2 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Информация о продавце
               </Typography>
-              <Typography variant="body1" gutterBottom>
-                <strong>Имя:</strong> {ad.seller.name}
-              </Typography>
-              <Typography variant="body1" gutterBottom>
-                <strong>Рейтинг:</strong> {ad.seller.rating} ⭐
-              </Typography>
-              <Typography variant="body1" gutterBottom>
-                <strong>Объявлений:</strong> {ad.seller.totalAds}
-              </Typography>
-              <Typography variant="body1">
-                <strong>На сайте:</strong>{' '}
-                {new Date(ad.seller.registeredAt).toLocaleDateString('ru-RU')}
-              </Typography>
+              <Stack direction="row" spacing={2} justifyContent="space-between">
+                <Typography color="textSecondary">Имя:</Typography>
+                <Typography variant="body1" gutterBottom>
+                  {ad.seller.name}
+                </Typography>
+              </Stack>
+
+              <Stack direction="row" spacing={2} justifyContent="space-between">
+                <Typography color="textSecondary">Рейтинг:</Typography>
+                <Stack direction="row" spacing={0.5}>
+                  <Typography sx={{ color: '#ffb121', fontWeight: 500 }}>
+                    {ad.seller.rating}{' '}
+                  </Typography>
+                  <StarIcon sx={{ color: '#ffb121' }} />
+                </Stack>
+              </Stack>
+
+              <Stack direction="row" spacing={2} justifyContent="space-between">
+                <Typography color="textSecondary">Объявлений:</Typography>
+                <Typography variant="body1" gutterBottom>
+                  {ad.seller.totalAds}
+                </Typography>
+              </Stack>
+
+              <Stack direction="row" spacing={2} justifyContent="space-between">
+                <Typography color="textSecondary">На сайте:</Typography>
+                <Typography variant="body1" gutterBottom>
+                  {new Date(ad.seller.registeredAt).toLocaleDateString('ru-RU')}
+                </Typography>
+              </Stack>
             </CardContent>
           </Card>
 
           {/* История модерации */}
-          <Card sx={{ mb: 3 }}>
+          <Card sx={{ mb: 2 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 История модерации
@@ -497,20 +507,19 @@ export const ItemPage: React.FC = () => {
                         mb: 1,
                       }}
                     >
-                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                      <Typography variant="subtitle2" color="primary">
                         {action.moderatorName}
                       </Typography>
                       <Chip
+                        variant="outlined"
                         label={getActionLabel(action.action)}
-                        color={
-                          getStatusColor(
-                            action.action === 'approved'
-                              ? 'approved'
-                              : action.action === 'rejected'
-                              ? 'rejected'
-                              : 'pending',
-                          ) as any
-                        }
+                        color={getStatusColor(
+                          action.action === 'approved'
+                            ? 'approved'
+                            : action.action === 'rejected'
+                            ? 'rejected'
+                            : 'pending',
+                        )}
                         size="small"
                       />
                     </Box>
@@ -518,7 +527,7 @@ export const ItemPage: React.FC = () => {
                       {formatDate(action.timestamp)}
                     </Typography>
                     {action.reason && (
-                      <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 'bold' }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                         Причина: {action.reason}
                       </Typography>
                     )}
@@ -542,7 +551,7 @@ export const ItemPage: React.FC = () => {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Tooltip title="Горячая клавиша: A">
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     color="success"
                     startIcon={<Check />}
                     onClick={handleApprove}
@@ -555,7 +564,7 @@ export const ItemPage: React.FC = () => {
 
                 <Tooltip title="Горячая клавиша: D">
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     color="error"
                     startIcon={<Close />}
                     onClick={() => setRejectDialogOpen(true)}
@@ -568,7 +577,7 @@ export const ItemPage: React.FC = () => {
 
                 <Tooltip title="Горячая клавиша: R">
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     color="warning"
                     startIcon={<Edit />}
                     onClick={() => setChangesDialogOpen(true)}
